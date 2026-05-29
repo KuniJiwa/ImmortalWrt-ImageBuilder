@@ -29,8 +29,8 @@ PACKAGES="$PACKAGES luci-i18n-argon-config-zh-cn"
 PACKAGES="$PACKAGES luci-i18n-ttyd-zh-cn"
 PACKAGES="$PACKAGES openssh-sftp-server"
 
-# WebDAV 服务（原生轻量，完美支持双硬盘挂载共享）
-PACKAGES="$PACKAGES webdav uhttpd-mod-webdav"
+# WebDAV 服务
+PACKAGES="$PACKAGES luci-app-webdav luci-i18n-webdav-zh-cn"
 
 PACKAGES="$PACKAGES luci-app-openclash"
 PACKAGES="$PACKAGES luci-app-aria2 aria2 luci-i18n-aria2-zh-cn"
