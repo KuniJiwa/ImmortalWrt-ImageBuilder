@@ -2,6 +2,9 @@
 # N1 ImmortalWrt 旁路由固件构建脚本
 # 文件路径：n1/build.sh
 
+# 自动获取脚本所在目录，解决路径找不到问题
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 source shell/custom-packages.sh
 source shell/switch_repository.sh
 
@@ -100,8 +103,15 @@ else
 fi
 
 # 加载排除包列表
-PACKAGES="$PACKAGES $(cat exclude-packages.txt | grep -v '^#' | sed 's/^/-/' | tr '\n' ' ')"
-echo "✅ 已加载排除文件，共排除 $(grep -v '^#' exclude-packages.txt | wc -l) 个包"
+EXCLUDE_FILE="${SCRIPT_DIR}/exclude-packages.txt"
+if [ -f "${EXCLUDE_FILE}" ]; then
+    EXCLUDE_CONTENT=$(cat "${EXCLUDE_FILE}" | grep -v '^#' | sed 's/^/-/' | tr '\n' ' ')
+    PACKAGES="${PACKAGES} ${EXCLUDE_CONTENT}"
+    EXCLUDE_NUM=$(grep -v '^#' "${EXCLUDE_FILE}" | wc -l)
+    echo "✅ 已加载排除文件，共排除 ${EXCLUDE_NUM} 个包"
+else
+    echo "⚠️ 未找到排除文件 ${EXCLUDE_FILE}，跳过排除"
+fi
 
 # =========== 开始构建镜像 ===========
 echo "$(date '+%Y-%m-%d %H:%M:%S') - Building image with the following packages:"
