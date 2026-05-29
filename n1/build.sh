@@ -108,6 +108,7 @@ PACKAGES="$PACKAGES -kmod-pppox -kmod-slhc -kmod-mppe -luci-proto-ppp -luci-prot
 PACKAGES="$PACKAGES -odhcp6c -odhcpd-ipv6only -kmod-amazon-ena -kmod-e1000e -kmod-dwmac-sun8i"
 PACKAGES="$PACKAGES -kmod-phy-broadcom -kmod-phy-marvell-10g -kmod-phy-smsc -kmod-phylib-broadcom"
 PACKAGES="$PACKAGES -kmod-vmxnet3 -kmod-fsl-dpaa2-net -kmod-renesas-net-avb -kmod-sfp"
+PACKAGES="$PACKAGES -libiwinfo-data -libiwinfo20230701 -rpcd-mod-iwinfo -luci-proto-ppp -luci-proto-ipv6"
 echo "✅ 已加载全部官方标准排除项"
 
 # =========== 官方标准构建命令 ===========
