@@ -54,7 +54,9 @@ PACKAGES="$PACKAGES \
 -kmod-brcmfmac -wpad-basic-mbedtls -iw -iwinfo \
 -ppp -ppp-mod-pppoe -kmod-ppp -kmod-pppoe -kmod-pppox -kmod-slhc -kmod-mppe -luci-proto-ppp \
 -luci-proto-ipv6 -odhcp6c -odhcpd-ipv6only \
--btrfs-progs -dosfstools -e2fsprogs -mkf2fs -exfat-fsck -exfat-mkfs -ntfs3-mount"
+-btrfs-progs -dosfstools -e2fsprogs -mkf2fs -exfat-fsck -exfat-mkfs -ntfs3-mount \
+-luci-app-wireless -luci-app-channel-analysis"
+
 
 echo "🔄 正在同步第三方软件仓库 Cloning run file repo..."
 git clone --depth=1 https://github.com/wukongdaily/store.git /tmp/store-run-repo
