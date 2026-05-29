@@ -43,10 +43,6 @@ PACKAGES="$PACKAGES perlbase-base perlbase-file perlbase-time perlbase-utf8 perl
 # 晶晨宝盒
 CUSTOM_PACKAGES="$CUSTOM_PACKAGES luci-app-amlogic luci-i18n-amlogic-zh-cn"
 
-# 加载排除包列表
-PACKAGES="$PACKAGES $(cat n1/exclude-packages.txt | grep -v '^#' | sed 's/^/-/' | tr '\n' ' ')"
-echo "✅ 已加载排除文件，共排除 $(grep -v '^#' n1/exclude-packages.txt | wc -l) 个包"
-
 # =========== Store 商店集成 ===========
 if [ "$ENABLE_STORE" = "true" ]; then
     echo "🔄 正在同步第三方软件仓库 Cloning run file repo..."
@@ -102,6 +98,11 @@ if echo "$PACKAGES" | grep -q "luci-app-ssr-plus"; then
 else
     echo "⚪️ 未选择 luci-app-ssr-plus"
 fi
+
+# ==================== 【唯一改动】排除包放到最后，100%生效 ====================
+# 加载排除包列表
+PACKAGES="$PACKAGES $(cat n1/exclude-packages.txt | grep -v '^#' | sed 's/^/-/' | tr '\n' ' ')"
+echo "✅ 已加载排除文件，共排除 $(grep -v '^#' n1/exclude-packages.txt | wc -l) 个包"
 
 # =========== 开始构建镜像 ===========
 echo "$(date '+%Y-%m-%d %H:%M:%S') - Building image with the following packages:"
