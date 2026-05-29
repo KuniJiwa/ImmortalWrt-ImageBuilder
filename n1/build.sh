@@ -2,16 +2,6 @@
 # N1 ImmortalWrt 旁路由固件构建脚本
 # 文件路径：n1/build.sh
 
-# 标准写法获取脚本路径
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
-
-# 调试输出：打印脚本目录和目录内文件，方便排查
-echo "====================================="
-echo "调试：脚本所在目录 = ${SCRIPT_DIR}"
-echo "调试：目录内所有文件："
-ls -la "${SCRIPT_DIR}"
-echo "====================================="
-
 source shell/custom-packages.sh
 source shell/switch_repository.sh
 
@@ -109,14 +99,14 @@ else
     echo "⚪️ 未选择 luci-app-ssr-plus"
 fi
 
-# 加载排除包列表
-EXCLUDE_FILE="${SCRIPT_DIR}/exclude-packages.txt"
+# ==================== 固定路径，直接读取n1文件夹下的文件 ====================
+EXCLUDE_FILE="n1/exclude-packages.txt"
 if [ -f "${EXCLUDE_FILE}" ]; then
     EXCLUDE_PKGS=$(grep -v '^#' "${EXCLUDE_FILE}" | sed 's/^/-/' | tr '\n' ' ')
     PACKAGES="${PACKAGES} ${EXCLUDE_PKGS}"
     echo "已加载排除文件，共排除 $(grep -v '^#' "${EXCLUDE_FILE}" | wc -l) 个包"
 else
-    echo "未找到排除文件 ${EXCLUDE_FILE}，跳过排除"
+    echo "未找到排除文件，跳过排除"
 fi
 
 # =========== 开始构建镜像 ===========
