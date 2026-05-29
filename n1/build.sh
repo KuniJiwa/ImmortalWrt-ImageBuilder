@@ -20,7 +20,6 @@ PACKAGES="$PACKAGES curl fdisk"
 PACKAGES="$PACKAGES luci-i18n-diskman-zh-cn"
 PACKAGES="$PACKAGES luci-i18n-package-manager-zh-cn"
 PACKAGES="$PACKAGES luci-i18n-firewall-zh-cn"
-PACKAGES="$PACKAGES luci-i18n-filebrowser-go-zh-cn"
 PACKAGES="$PACKAGES luci-i18n-filemanager-zh-cn"
 
 PACKAGES="$PACKAGES luci-theme-argon"
@@ -29,6 +28,9 @@ PACKAGES="$PACKAGES luci-i18n-argon-config-zh-cn"
 
 PACKAGES="$PACKAGES luci-i18n-ttyd-zh-cn"
 PACKAGES="$PACKAGES openssh-sftp-server"
+
+# WebDAV 服务（原生轻量，完美支持双硬盘挂载共享）
+PACKAGES="$PACKAGES webdav uhttpd-mod-webdav"
 
 PACKAGES="$PACKAGES luci-app-openclash"
 PACKAGES="$PACKAGES luci-app-aria2 aria2 luci-i18n-aria2-zh-cn"
@@ -44,13 +46,12 @@ PACKAGES="$PACKAGES perlbase-base perlbase-file perlbase-time perlbase-utf8 perl
 # 晶晨宝盒
 CUSTOM_PACKAGES="$CUSTOM_PACKAGES luci-app-amlogic luci-i18n-amlogic-zh-cn"
 
-# 全局排除项：无线、拨号、IPv6、多余磁盘工具
+# 全局排除项：无线、拨号、IPv6（完整保留磁盘工具，支持双硬盘挂载）
 PACKAGES="$PACKAGES \
 -kmod-brcmfmac -wpad-basic-mbedtls -iw -iwinfo \
--luci-proto-wireless -libiwinfo-data -rpcd-mod-iwinfo -luci-app-wireless -luci-app-channel-analysis \
+-luci-proto-wireless -libiwinfo-data -libiwinfo20230701 -rpcd-mod-iwinfo -luci-app-wireless -luci-app-channel-analysis \
 -ppp -ppp-mod-pppoe -kmod-ppp -kmod-pppoe -kmod-pppox -kmod-slhc -kmod-mppe -luci-proto-ppp \
--luci-proto-ipv6 -odhcp6c -odhcpd-ipv6only \
--btrfs-progs -dosfstools -e2fsprogs -mkf2fs -exfat-fsck -exfat-mkfs -ntfs3-mount"
+-luci-proto-ipv6 -odhcp6c -odhcpd-ipv6only"
 
 # =========== Store 商店集成 ===========
 if [ "$ENABLE_STORE" = "true" ]; then
