@@ -99,17 +99,20 @@ else
     echo "⚪️ 未选择 luci-app-ssr-plus"
 fi
 
-# ==================== 固定路径，直接读取n1文件夹下的文件 ====================
+# ==================== 官方标准排除包实现 ====================
+# 依据：OpenWrt 官方文档 - PACKAGES 参数支持 "-package" 语法排除包
+# 路径：根据你的执行日志固定为 n1 文件夹下的 exclude-packages.txt
 EXCLUDE_FILE="n1/exclude-packages.txt"
 if [ -f "${EXCLUDE_FILE}" ]; then
     EXCLUDE_PKGS=$(grep -v '^#' "${EXCLUDE_FILE}" | sed 's/^/-/' | tr '\n' ' ')
     PACKAGES="${PACKAGES} ${EXCLUDE_PKGS}"
     echo "已加载排除文件，共排除 $(grep -v '^#' "${EXCLUDE_FILE}" | wc -l) 个包"
 else
-    echo "未找到排除文件，跳过排除"
+    echo "未找到排除文件 ${EXCLUDE_FILE}，跳过排除"
 fi
 
-# =========== 开始构建镜像 ===========
+# =========== 官方标准构建命令 ===========
+# 依据：OpenWrt ImageBuilder 官方文档 - make image 命令参数规范
 echo "$(date '+%Y-%m-%d %H:%M:%S') - Building image with the following packages:"
 echo "$PACKAGES"
 
