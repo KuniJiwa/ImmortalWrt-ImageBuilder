@@ -103,7 +103,7 @@ else
 fi
 
 # 加载排除包列表
-EXCLUDE_FILE="${SCRIPT_DIR}/n1/exclude-packages.txt"
+EXCLUDE_FILE="${SCRIPT_DIR}/exclude-packages.txt"
 if [ -f "${EXCLUDE_FILE}" ]; then
     EXCLUDE_CONTENT=$(cat "${EXCLUDE_FILE}" | grep -v '^#' | sed 's/^/-/' | tr '\n' ' ')
     PACKAGES="${PACKAGES} ${EXCLUDE_CONTENT}"
