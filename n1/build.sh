@@ -44,7 +44,7 @@ PACKAGES="$PACKAGES perlbase-base perlbase-file perlbase-time perlbase-utf8 perl
 CUSTOM_PACKAGES="$CUSTOM_PACKAGES luci-app-amlogic luci-i18n-amlogic-zh-cn"
 
 # 加载排除包列表
-PACKAGES="$PACKAGES $(cat n1/exclude-packages.txt | grep -v '^#' | sed 's/^/-/')"
+PACKAGES="$PACKAGES $(cat n1/exclude-packages.txt | grep -v '^#' | sed 's/^/-/' | tr '\n' ' ')"
 echo "✅ 已加载排除文件，共排除 $(grep -v '^#' n1/exclude-packages.txt | wc -l) 个包"
 
 # =========== Store 商店集成 ===========
