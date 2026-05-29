@@ -43,7 +43,7 @@ PACKAGES="$PACKAGES perlbase-base perlbase-file perlbase-time perlbase-utf8 perl
 # 晶晨宝盒
 CUSTOM_PACKAGES="$CUSTOM_PACKAGES luci-app-amlogic luci-i18n-amlogic-zh-cn"
 
-# 全局排除项：无线、拨号、IPv6（完整保留磁盘工具，支持双硬盘挂载）
+# 全局排除项：无线、拨号、IPv6、多余网卡驱动（完整保留磁盘工具，支持双硬盘挂载）
 PACKAGES="$PACKAGES \
 -kmod-brcmfmac -wpad-basic-mbedtls -iw -iwinfo \
 -luci-proto-wireless -libiwinfo-data -libiwinfo20230701 -rpcd-mod-iwinfo -luci-app-wireless -luci-app-channel-analysis \
@@ -52,6 +52,7 @@ PACKAGES="$PACKAGES \
 -kmod-amazon-ena -kmod-e1000e -kmod-dwmac-sun8i -kmod-phy-broadcom \
 -kmod-phy-marvell-10g -kmod-phy-smsc -kmod-phylib-broadcom -kmod-vmxnet3 \
 -kmod-fsl-dpaa2-net -kmod-renesas-net-avb -kmod-sfp"
+
 # =========== Store 商店集成 ===========
 if [ "$ENABLE_STORE" = "true" ]; then
     echo "🔄 正在同步第三方软件仓库 Cloning run file repo..."
