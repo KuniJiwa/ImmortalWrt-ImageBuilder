@@ -57,15 +57,21 @@ PACKAGES="$PACKAGES \
 -luci-proto-ipv6 -odhcp6c -odhcpd-ipv6only \
 -btrfs-progs -dosfstools -e2fsprogs -mkf2fs -exfat-fsck -exfat-mkfs -ntfs3-mount"
 
-
-echo "🔄 正在同步第三方软件仓库 Cloning run file repo..."
-git clone --depth=1 https://github.com/wukongdaily/store.git /tmp/store-run-repo
-mkdir -p /home/build/immortalwrt/extra-packages
-cp -r /tmp/store-run-repo/run/arm64/* /home/build/immortalwrt/extra-packages/
-sh shell/prepare-packages.sh
-sed -i '1i\
+# ======================================
+# 【仅修复这里】Store 集成条件判断 + 安装包
+# ======================================
+if [ "$ENABLE_STORE" = "true" ]; then
+    echo "🔄 正在同步第三方软件仓库 Cloning run file repo..."
+    git clone --depth=1 https://github.com/wukongdaily/store.git /tmp/store-run-repo
+    mkdir -p /home/build/immortalwrt/extra-packages
+    cp -r /tmp/store-run-repo/run/arm64/* /home/build/immortalwrt/extra-packages/
+    sh shell/prepare-packages.sh
+    sed -i '1i\
 arch aarch64_generic 10\n\
 arch aarch64_cortex-a53 15' repositories.conf
+    # 强制安装 Store 核心包（解决不显示问题）
+    PACKAGES="$PACKAGES luci-app-store luci-lib-taskd luci-lib-xterm"
+fi
 
 PACKAGES="$PACKAGES $CUSTOM_PACKAGES"
 
