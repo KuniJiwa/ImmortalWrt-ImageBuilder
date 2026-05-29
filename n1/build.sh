@@ -2,8 +2,15 @@
 # N1 ImmortalWrt 旁路由固件构建脚本
 # 文件路径：n1/build.sh
 
-# 【官方标准写法】获取脚本所在绝对路径
+# 标准写法获取脚本路径
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+
+# 调试输出：打印脚本目录和目录内文件，方便排查
+echo "====================================="
+echo "调试：脚本所在目录 = ${SCRIPT_DIR}"
+echo "调试：目录内所有文件："
+ls -la "${SCRIPT_DIR}"
+echo "====================================="
 
 source shell/custom-packages.sh
 source shell/switch_repository.sh
@@ -102,15 +109,14 @@ else
     echo "⚪️ 未选择 luci-app-ssr-plus"
 fi
 
-# ==================== 官方规范：加载排除包（最终正确版）====================
+# 加载排除包列表
 EXCLUDE_FILE="${SCRIPT_DIR}/exclude-packages.txt"
 if [ -f "${EXCLUDE_FILE}" ]; then
-    # 读取txt → 过滤注释 → 添加-前缀 → 拼接为ImageBuilder支持格式
     EXCLUDE_PKGS=$(grep -v '^#' "${EXCLUDE_FILE}" | sed 's/^/-/' | tr '\n' ' ')
     PACKAGES="${PACKAGES} ${EXCLUDE_PKGS}"
-    echo "✅ 已加载排除文件，共排除 $(grep -v '^#' "${EXCLUDE_FILE}" | wc -l) 个包"
+    echo "已加载排除文件，共排除 $(grep -v '^#' "${EXCLUDE_FILE}" | wc -l) 个包"
 else
-    echo "⚠️ 未找到排除文件，跳过排除操作"
+    echo "未找到排除文件 ${EXCLUDE_FILE}，跳过排除"
 fi
 
 # =========== 开始构建镜像 ===========
