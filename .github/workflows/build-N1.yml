@@ -62,7 +62,7 @@ on:
       builder_name:
         description: "设置打包作者的名称"
         required: true
-        default: 'wukongdaily'
+        default: 'KuniJiwa'
 
 permissions:
   contents: write
@@ -81,7 +81,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: 版本内核校验并清理环境
+      - name: 环境准备与清理
         run: |
           LUCI="${{ inputs.luci_version }}"
           KERNEL="${{ inputs.openwrt_kernel }}"
@@ -98,9 +98,7 @@ jobs:
           sudo rm -rf /tmp/* 2>/dev/null || true
           df -h
           echo "清理完成"
-
-      - name: Clean old artifacts
-        run: |
+          echo "清理旧编译残留..."
           rm -rf bin/targets/armsr/armv8/
           mkdir -p bin/targets/armsr/armv8/
           rm -rf /tmp/store-run-repo /tmp/opkg_fix 2>/dev/null || true
@@ -134,7 +132,7 @@ jobs:
         run: |
           cp n1/99-banner.sh files/etc/uci-defaults/
       
-      - name: Building N1 ImmortalWrt rootfs 24.10.x
+      - name: Building N1 ImmortalWrt rootfs | LuCI ${{ inputs.luci_version }} | Kernel ${{ inputs.openwrt_kernel }}
         if: ${{ github.event.inputs.skip_imagebuilder != 'true' }}
         run: |
           echo "✅ 使用 ImageBuilder 构建 rootfs"
@@ -195,11 +193,9 @@ jobs:
           KERNEL_AUTO_LATEST: false
           WHOAMI: ${{ inputs.builder_name }}
 
-      - name: Set up environment
-        run: mkdir -p "$PACKAGED_OUTPUTPATH"
-
-      - name: Backup rootfs
+      - name: 产物备份与重命名
         run: |
+          mkdir -p "$PACKAGED_OUTPUTPATH"
           ROOTFS_SRC=$(find "${GITHUB_WORKSPACE}/bin/targets/armsr/armv8/" -name "*rootfs.tar.gz" -type f 2>/dev/null | head -n1)
           [ -f "$ROOTFS_SRC" ] || exit 0
           KERNEL_VERSION=$(ls "${PACKAGED_OUTPUTPATH}"/*.img.gz 2>/dev/null | head -n1 | grep -oP 'k\d+\.\d+\.\d+' || echo "unknown")
@@ -208,9 +204,6 @@ jobs:
           ROOTFS_NAME="immortalwrt-${LUCI_VER}-phicomm-n1-btrfs-${KERNEL_VERSION}-${BUILD_DATETIME}-rootfs.tar.gz"
           cp "$ROOTFS_SRC" "${PACKAGED_OUTPUTPATH}/${ROOTFS_NAME}"
           echo "✅ rootfs 已保存：$ROOTFS_NAME"
-
-      - name: Rename firmware files
-        run: |
           cd "${PACKAGED_OUTPUTPATH}"
           shopt -s nullglob
           for f in *.img.gz; do
