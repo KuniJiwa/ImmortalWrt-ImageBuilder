@@ -56,12 +56,30 @@ arch aarch64_cortex-a53 15' repositories.conf
 PACKAGES="$PACKAGES $CUSTOM_PACKAGES"
 
 # 若构建openclash 则添加规则库和 IPK（不预置内核）
-if echo "$PACKAGES" | grep -q "luci-app-openclash"; then
-    echo "✅ 已选择 luci-app-openclash，添加规则库和 IPK"
+# ============ OpenClash 组件集成 ============
+if [ "$ENABLE_OC" = "true" ]; then
+    echo "✅ 已选择 luci-app-openclash，开始下载规则库和 IPK"
+
     mkdir -p files/etc/openclash
-    # Download GeoIP and GeoSite
-    wget -q https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat -O files/etc/openclash/GeoIP.dat
-    wget -q https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat -O files/etc/openclash/GeoSite.dat
+    rm -f files/etc/openclash/GeoIP.dat files/etc/openclash/GeoSite.dat
+
+    # 规则库下载（GitHub Releases 主下载，jsDelivr CDN 备用）
+    wget --tries=10 --timeout=20 \
+        https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat \
+        -O files/etc/openclash/GeoIP.dat || \
+    wget --timeout=20 \
+        https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geoip.dat \
+        -O files/etc/openclash/GeoIP.dat || \
+    echo "❌ GeoIP 下载失败，跳过"
+
+    wget --tries=10 --timeout=20 \
+        https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat \
+        -O files/etc/openclash/GeoSite.dat || \
+    wget --timeout=20 \
+        https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geosite.dat \
+        -O files/etc/openclash/GeoSite.dat || \
+    echo "❌ GeoSite 下载失败，跳过"
+    
     # Download latest openclash Client
     URL=$(curl -s https://api.github.com/repos/vernesong/OpenClash/releases/latest \
       | grep "browser_download_url.*ipk" \
