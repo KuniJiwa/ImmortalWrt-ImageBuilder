@@ -30,7 +30,8 @@ fi
 
 PACKAGED_OUTPUTPATH="${PACKAGED_OUTPUTPATH:-/opt/openwrt_packit/output}"
 
-echo "::group::$(echo -e "${BOLD}${WHITE}📊 固件完整详细诊断报告${NC}")"
+# ==================== 【仅修改这一行】删除重复标题 + 修复语法 ====================
+echo -e "::group::${BOLD}${WHITE}📊 固件诊断报告${NC}"
 echo -e "${GRAY}${SEP_LINE}${NC}"
 
 # 1. 优先查找 rootfs.tar.gz（免挂载，不受内核 btrfs 限制）
