@@ -35,7 +35,7 @@ echo -e "${BOLD}${WHITE}📊 固件完整详细诊断报告${NC}"
 echo -e "${GRAY}${SEP_LINE}${NC}"
 
 # 1. 优先查找 rootfs.tar.gz（免挂载，不受内核 btrfs 限制）
-ROOTFS_FILE=$(find "${PACKAGED_OUTPUTPATH}" -name "*-rootfs.tar.gz" -type f 2>/dev/null | head -n1)
+ROOTFS_FILE=$(find "${PACKAGED_OUTPUTPATH}" -name "rootfs.tar.gz" -type f 2>/dev/null | head -n1)
 
 if [ -f "$ROOTFS_FILE" ]; then
     echo -e "${GREEN}✅ 使用 rootfs.tar.gz 进行免挂载诊断${NC}"
@@ -55,7 +55,7 @@ if [ -f "$ROOTFS_FILE" ]; then
     tar -xzf "$ROOTFS_FILE" -O ./etc/opkg/distfeeds.conf 2>/dev/null || echo "  文件不存在"
     echo -e "${GRAY}${SEP_LINE}${NC}"
 
-    # 1. OpenClash 规则库（内容最少）
+    # 1. OpenClash 规则库
     echo -e "  ${BOLD}${WHITE}【OpenClash 规则库】${NC}"
     if tar -tzf "$ROOTFS_FILE" 2>/dev/null | grep "GeoIP.dat" > /dev/null; then
         echo -e "  ${GREEN}✅ GeoIP: 已打包${NC}"
@@ -108,24 +108,24 @@ if [ -f "$ROOTFS_FILE" ]; then
     done
     echo -e "${GRAY}${SEP_LINE}${NC}"
 
-    # 6. /etc/config/ 配置文件（多列排版）
+    # 6. /etc/config/ 配置文件 固定每行8个
     echo -e "  ${BOLD}${WHITE}【/etc/config/ 下所有配置文件】${NC}"
-    tar -tzf "$ROOTFS_FILE" 2>/dev/null | grep "^./etc/config/" | sed 's|^./etc/config/||' | sort | column
+    tar -tzf "$ROOTFS_FILE" 2>/dev/null | grep "^./etc/config/" | sed 's|^./etc/config/||' | sort | xargs -n 8
     echo -e "${GRAY}${SEP_LINE}${NC}"
 
-    # 7. /etc/uci-defaults/ 启动脚本（多列排版）
+    # 7. /etc/uci-defaults/ 启动脚本 固定每行6个
     echo -e "  ${BOLD}${WHITE}【/etc/uci-defaults/ 下所有启动脚本】${NC}"
-    tar -tzf "$ROOTFS_FILE" 2>/dev/null | grep "^./etc/uci-defaults/" | sed 's|^./etc/uci-defaults/||' | sort | column
+    tar -tzf "$ROOTFS_FILE" 2>/dev/null | grep "^./etc/uci-defaults/" | sed 's|^./etc/uci-defaults/||' | sort | xargs -n 6
     echo -e "${GRAY}${SEP_LINE}${NC}"
 
-    # 8. /etc/init.d/ 服务脚本（多列排版）
+    # 8. /etc/init.d/ 服务脚本 固定每行8个
     echo -e "  ${BOLD}${WHITE}【/etc/init.d/ 下所有服务脚本】${NC}"
-    tar -tzf "$ROOTFS_FILE" 2>/dev/null | grep "^./etc/init.d/" | sed 's|^./etc/init.d/||' | sort | column
+    tar -tzf "$ROOTFS_FILE" 2>/dev/null | grep "^./etc/init.d/" | sed 's|^./etc/init.d/||' | sort | xargs -n 8
     echo -e "${GRAY}${SEP_LINE}${NC}"
 
-    # 9. 全量包列表（固定最底部，多列排版）
+    # 9. 全量包列表 ✅ 核心修复：固定每行10个，彻底解决挤成2行问题
     echo -e "  ${BOLD}${WHITE}【全量包列表】${NC}"
-    echo "$PACKAGE_LIST" | column
+    echo "$PACKAGE_LIST" | xargs -n 10
     PKG_TOTAL=$(echo "$PACKAGE_LIST" | wc -l)
     echo -e "  包总数: ${GREEN}${PKG_TOTAL}${NC}"
     echo -e "${GRAY}${SEP_LINE}${NC}"
@@ -167,7 +167,7 @@ if ! sudo mount -o ro "${LOOP_DEV}p2" /mnt/diag 2>/dev/null; then
     fi
 fi
 
-# ========== 挂载模式诊断（模块顺序、排版、规则与免挂载完全一致） ==========
+# ========== 挂载模式诊断（排版与免挂载完全一致） ==========
 echo ""
 echo "📦 固件: $(basename "$IMG_FILE")"
 echo "🕒 诊断时间: $(date '+%Y-%m-%d %H:%M:%S')"
@@ -240,24 +240,24 @@ for app in $(echo "$PACKAGE_LIST" | grep "^luci-app-" | sed 's/luci-app-//'); do
 done
 echo -e "${GRAY}${SEP_LINE}${NC}"
 
-# 6. /etc/config/ 配置文件（多列排版）
+# 6. /etc/config/ 配置文件
 echo -e "  ${BOLD}${WHITE}【/etc/config/ 下所有配置文件】${NC}"
-echo "$CONFIG_FILES" | column
+echo "$CONFIG_FILES" | xargs -n 8
 echo -e "${GRAY}${SEP_LINE}${NC}"
 
-# 7. /etc/uci-defaults/ 启动脚本（多列排版）
+# 7. /etc/uci-defaults/ 启动脚本
 echo -e "  ${BOLD}${WHITE}【/etc/uci-defaults/ 下所有启动脚本】${NC}"
-echo "$UCI_DEFAULTS" | column
+echo "$UCI_DEFAULTS" | xargs -n 6
 echo -e "${GRAY}${SEP_LINE}${NC}"
 
-# 8. /etc/init.d/ 服务脚本（多列排版）
+# 8. /etc/init.d/ 服务脚本
 echo -e "  ${BOLD}${WHITE}【/etc/init.d/ 下所有服务脚本】${NC}"
-ls /mnt/diag/etc/init.d/ 2>/dev/null | sort | column
+ls /mnt/diag/etc/init.d/ 2>/dev/null | sort | xargs -n 8
 echo -e "${GRAY}${SEP_LINE}${NC}"
 
-# 9. 全量包列表（固定最底部，多列排版）
+# 9. 全量包列表
 echo -e "  ${BOLD}${WHITE}【全量包列表】${NC}"
-echo "$PACKAGE_LIST" | column
+echo "$PACKAGE_LIST" | xargs -n 10
 PKG_TOTAL=$(echo "$PACKAGE_LIST" | wc -l)
 echo -e "  包总数: ${GREEN}${PKG_TOTAL}${NC}"
 echo -e "${GRAY}${SEP_LINE}${NC}"
