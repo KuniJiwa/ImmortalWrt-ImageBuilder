@@ -48,8 +48,10 @@ PACKAGES="$PACKAGES \
 -kmod-brcmfmac -wpad-basic-mbedtls -iw -iwinfo \
 -luci-proto-wireless -libiwinfo-data -libiwinfo20230701 -rpcd-mod-iwinfo -luci-app-wireless -luci-app-channel-analysis \
 -ppp -ppp-mod-pppoe -kmod-ppp -kmod-pppoe -kmod-pppox -kmod-slhc -kmod-mppe -luci-proto-ppp \
--luci-proto-ipv6 -odhcp6c -odhcpd-ipv6only"
-
+-luci-proto-ipv6 -odhcp6c -odhcpd-ipv6only \
+-kmod-amazon-ena -kmod-e1000e -kmod-dwmac-sun8i -kmod-phy-broadcom \
+-kmod-phy-marvell-10g -kmod-phy-smsc -kmod-phylib-broadcom -kmod-vmxnet3 \
+-kmod-fsl-dpaa2-net -kmod-renesas-net-avb -kmod-sfp"
 # =========== Store 商店集成 ===========
 if [ "$ENABLE_STORE" = "true" ]; then
     echo "🔄 正在同步第三方软件仓库 Cloning run file repo..."
