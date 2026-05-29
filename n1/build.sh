@@ -99,20 +99,18 @@ else
     echo "⚪️ 未选择 luci-app-ssr-plus"
 fi
 
-# ==================== 官方标准排除包实现 ====================
-# 依据：OpenWrt 官方文档 - PACKAGES 参数支持 "-package" 语法排除包
-# 路径：根据你的执行日志固定为 n1 文件夹下的 exclude-packages.txt
-EXCLUDE_FILE="n1/exclude-packages.txt"
-if [ -f "${EXCLUDE_FILE}" ]; then
-    EXCLUDE_PKGS=$(grep -v '^#' "${EXCLUDE_FILE}" | sed 's/^/-/' | tr '\n' ' ')
-    PACKAGES="${PACKAGES} ${EXCLUDE_PKGS}"
-    echo "已加载排除文件，共排除 $(grep -v '^#' "${EXCLUDE_FILE}" | wc -l) 个包"
-else
-    echo "未找到排除文件 ${EXCLUDE_FILE}，跳过排除"
-fi
+# ==================== 官方标准排除项（内置到脚本，无任何文件依赖）====================
+# 依据：OpenWrt ImageBuilder 官方文档 - 包名前加 "-" 为排除
+PACKAGES="$PACKAGES -kmod-brcmfmac -wpad-basic-mbedtls -iw -iwinfo -luci-proto-wireless"
+PACKAGES="$PACKAGES -libiwinfo-data -libiwinfo20230701 -rpcd-mod-iwinfo -luci-app-wireless"
+PACKAGES="$PACKAGES -luci-channel-analysis -ppp -ppp-mod-pppoe -kmod-ppp -kmod-pppoe"
+PACKAGES="$PACKAGES -kmod-pppox -kmod-slhc -kmod-mppe -luci-proto-ppp -luci-proto-ipv6"
+PACKAGES="$PACKAGES -odhcp6c -odhcpd-ipv6only -kmod-amazon-ena -kmod-e1000e -kmod-dwmac-sun8i"
+PACKAGES="$PACKAGES -kmod-phy-broadcom -kmod-phy-marvell-10g -kmod-phy-smsc -kmod-phylib-broadcom"
+PACKAGES="$PACKAGES -kmod-vmxnet3 -kmod-fsl-dpaa2-net -kmod-renesas-net-avb -kmod-sfp"
+echo "✅ 已加载全部官方标准排除项"
 
 # =========== 官方标准构建命令 ===========
-# 依据：OpenWrt ImageBuilder 官方文档 - make image 命令参数规范
 echo "$(date '+%Y-%m-%d %H:%M:%S') - Building image with the following packages:"
 echo "$PACKAGES"
 
