@@ -25,15 +25,12 @@ PACKAGES="$PACKAGES luci-i18n-argon-config-zh-cn"
 PACKAGES="$PACKAGES luci-i18n-ttyd-zh-cn"
 PACKAGES="$PACKAGES openssh-sftp-server"
 PACKAGES="$PACKAGES luci-i18n-filemanager-zh-cn"
-
-# 核心功能包（必须）
 PACKAGES="$PACKAGES luci-app-openclash"
-PACKAGES="$PACKAGES luci-app-aria2 aria2 luci-i18n-aria2-zh-cn"
+PACKAGES="$PACKAGES luci-app-aria2 aria2"
 
 # Docker 条件
 if [ "$INCLUDE_DOCKER" = "yes" ]; then
     PACKAGES="$PACKAGES luci-i18n-dockerman-zh-cn"
-    echo "✅ 已选择docker : luci-i18n-dockerman-zh-cn"
 fi
 
 # Perl 基础库
@@ -42,19 +39,22 @@ PACKAGES="$PACKAGES perlbase-base perlbase-file perlbase-time perlbase-utf8 perl
 # 晶晨宝盒
 CUSTOM_PACKAGES="$CUSTOM_PACKAGES luci-app-amlogic luci-i18n-amlogic-zh-cn"
 
+# 排除无线、PPPoE、IPv6、多余文件系统工具
+PACKAGES="$PACKAGES \
+-kmod-brcmfmac -wpad-basic-mbedtls -iw -iwinfo \
+-ppp -ppp-mod-pppoe -kmod-ppp -kmod-pppoe -kmod-pppox -kmod-slhc -kmod-mppe -luci-proto-ppp \
+-luci-proto-ipv6 -odhcp6c -odhcpd-ipv6only \
+-btrfs-progs -dosfstools -e2fsprogs -mkf2fs -exfat-fsck -exfat-mkfs -ntfs3-mount"
+
 echo "🔄 正在同步第三方软件仓库 Cloning run file repo..."
 git clone --depth=1 https://github.com/wukongdaily/store.git /tmp/store-run-repo
 mkdir -p /home/build/immortalwrt/extra-packages
 cp -r /tmp/store-run-repo/run/arm64/* /home/build/immortalwrt/extra-packages/
-echo "✅ Run files copied to extra-packages:"
-ls -lh /home/build/immortalwrt/extra-packages/*.run
 sh shell/prepare-packages.sh
-ls -lah /home/build/immortalwrt/packages/
 sed -i '1i\
 arch aarch64_generic 10\n\
 arch aarch64_cortex-a53 15' repositories.conf
 
-# 合并第三方插件
 PACKAGES="$PACKAGES $CUSTOM_PACKAGES"
 
 # ============ OpenClash 组件集成 ============
@@ -93,7 +93,6 @@ if echo "$PACKAGES" | grep -q "luci-app-ssr-plus"; then
     wget -qO- "$MIHOMO_URL" | gzip -dc > files/usr/bin/mihomo
     chmod +x files/usr/bin/mihomo
     echo "✅ 已下载 mihomo core"
-    ls -lah files/usr/bin
 else
     echo "⚪️ 未选择 luci-app-ssr-plus"
 fi
