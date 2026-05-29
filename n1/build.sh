@@ -99,10 +99,9 @@ else
     echo "⚪️ 未选择 luci-app-ssr-plus"
 fi
 
-# ==================== 【唯一改动】排除包放到最后，100%生效 ====================
 # 加载排除包列表
-PACKAGES="$PACKAGES $(cat n1/exclude-packages.txt | grep -v '^#' | sed 's/^/-/' | tr '\n' ' ')"
-echo "✅ 已加载排除文件，共排除 $(grep -v '^#' n1/exclude-packages.txt | wc -l) 个包"
+PACKAGES="$PACKAGES $(cat exclude-packages.txt | grep -v '^#' | sed 's/^/-/' | tr '\n' ' ')"
+echo "✅ 已加载排除文件，共排除 $(grep -v '^#' exclude-packages.txt | wc -l) 个包"
 
 # =========== 开始构建镜像 ===========
 echo "$(date '+%Y-%m-%d %H:%M:%S') - Building image with the following packages:"
