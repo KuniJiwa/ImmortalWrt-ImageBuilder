@@ -52,10 +52,10 @@ CUSTOM_PACKAGES="$CUSTOM_PACKAGES luci-app-amlogic luci-i18n-amlogic-zh-cn"
 # 排除：无线、PPPoE、IPv6、多余文件系统工具
 PACKAGES="$PACKAGES \
 -kmod-brcmfmac -wpad-basic-mbedtls -iw -iwinfo \
+-luci-proto-wireless -libiwinfo-data -rpcd-mod-iwinfo -luci-app-wireless -luci-app-channel-analysis \
 -ppp -ppp-mod-pppoe -kmod-ppp -kmod-pppoe -kmod-pppox -kmod-slhc -kmod-mppe -luci-proto-ppp \
 -luci-proto-ipv6 -odhcp6c -odhcpd-ipv6only \
--btrfs-progs -dosfstools -e2fsprogs -mkf2fs -exfat-fsck -exfat-mkfs -ntfs3-mount \
--luci-app-wireless -luci-app-channel-analysis"
+-btrfs-progs -dosfstools -e2fsprogs -mkf2fs -exfat-fsck -exfat-mkfs -ntfs3-mount"
 
 
 echo "🔄 正在同步第三方软件仓库 Cloning run file repo..."
