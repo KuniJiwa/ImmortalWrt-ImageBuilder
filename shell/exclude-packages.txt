@@ -1,0 +1,40 @@
+# ==================== 原有排除项（完整保留）====================
+# 无线驱动与工具
+kmod-brcmfmac
+wpad-basic-mbedtls
+iw
+iwinfo
+luci-proto-wireless
+libiwinfo-data
+libiwinfo20230701
+rpcd-mod-iwinfo
+luci-app-wireless
+luci-channel-analysis
+
+# PPPOE 拨号相关
+ppp
+ppp-mod-pppoe
+kmod-ppp
+kmod-pppoe
+kmod-pppox
+kmod-slhc
+kmod-mppe
+luci-proto-ppp
+
+# IPv6 相关
+luci-proto-ipv6
+odhcp6c
+odhcpd-ipv6only
+
+# ==================== N1 无用网卡驱动（新增）====================
+kmod-amazon-ena
+kmod-e1000e
+kmod-dwmac-sun8i
+kmod-phy-broadcom
+kmod-phy-marvell-10g
+kmod-phy-smsc
+kmod-phylib-broadcom
+kmod-vmxnet3
+kmod-fsl-dpaa2-net
+kmod-renesas-net-avb
+kmod-sfp
