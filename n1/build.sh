@@ -36,7 +36,7 @@ PACKAGES="$PACKAGES openssh-sftp-server"
 
 # 核心功能包
 PACKAGES="$PACKAGES luci-app-openclash"
-PACKAGES="$PACKAGES luci-app-aria2 aria2"
+PACKAGES="$PACKAGES luci-app-aria2 aria2 luci-i18n-aria2-zh-cn"
 
 # Docker 条件
 if [ "$INCLUDE_DOCKER" = "yes" ]; then
