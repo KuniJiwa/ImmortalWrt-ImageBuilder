@@ -99,17 +99,18 @@ else
     echo "⚪️ 未选择 luci-app-ssr-plus"
 fi
 
-# ==================== 官方标准排除项（内置到脚本，无任何文件依赖）====================
-# 依据：OpenWrt ImageBuilder 官方文档 - 包名前加 "-" 为排除
+# ==================== 标准排除项 ====================
 PACKAGES="$PACKAGES -kmod-brcmfmac -wpad-basic-mbedtls -iw -iwinfo -luci-proto-wireless"
-PACKAGES="$PACKAGES -libiwinfo-data -libiwinfo20230701 -rpcd-mod-iwinfo -luci-app-wireless"
-PACKAGES="$PACKAGES -luci-channel-analysis -ppp -ppp-mod-pppoe -kmod-ppp -kmod-pppoe"
-PACKAGES="$PACKAGES -kmod-pppox -kmod-slhc -kmod-mppe -luci-proto-ppp -luci-proto-ipv6"
-PACKAGES="$PACKAGES -odhcp6c -odhcpd-ipv6only -kmod-amazon-ena -kmod-e1000e -kmod-dwmac-sun8i"
-PACKAGES="$PACKAGES -kmod-phy-broadcom -kmod-phy-marvell-10g -kmod-phy-smsc -kmod-phylib-broadcom"
-PACKAGES="$PACKAGES -kmod-vmxnet3 -kmod-fsl-dpaa2-net -kmod-renesas-net-avb -kmod-sfp"
-PACKAGES="$PACKAGES -libiwinfo-data -libiwinfo20230701 -rpcd-mod-iwinfo -luci-proto-ppp -luci-proto-ipv6"
-echo "✅ 已加载全部官方标准排除项"
+PACKAGES="$PACKAGES -libiwinfo-data -libiwinfo20230701 -rpcd-mod-iwinfo -luci-app-wireless -luci-channel-analysis"
+PACKAGES="$PACKAGES -ppp -ppp-mod-pppoe -kmod-ppp -kmod-pppoe -kmod-pppox -kmod-slhc -kmod-mppe"
+PACKAGES="$PACKAGES -luci-proto-ppp -luci-proto-ipv6 -odhcp6c -odhcpd-ipv6only"
+PACKAGES="$PACKAGES -kmod-amazon-ena -kmod-e1000e -kmod-dwmac-sun8i -kmod-phy-broadcom"
+PACKAGES="$PACKAGES -kmod-phy-marvell-10g -kmod-phy-smsc -kmod-phylib-broadcom -kmod-vmxnet3"
+PACKAGES="$PACKAGES -kmod-fsl-dpaa2-net -kmod-renesas-net-avb -kmod-sfp"
+
+# 自动判断生效状态 | 一行输出 | 特殊符号分隔+标识
+EXCLUDE_LIST=$(echo "$PACKAGES" | tr ' ' '\n' | grep '^-' | tr '\n' '|')
+[ -n "$EXCLUDE_LIST" ] && echo "✅排除生效|$EXCLUDE_LIST" || echo "❌排除未生效"
 
 # =========== 官方标准构建命令 ===========
 echo "$(date '+%Y-%m-%d %H:%M:%S') - Building image with the following packages:"
