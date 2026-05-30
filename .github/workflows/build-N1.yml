@@ -106,9 +106,9 @@ jobs:
 
       - name: Set executable permissions
         run: |
-          # 修改1: 使用755权限确保脚本可修改.config文件
-          chmod 755 ${{ github.workspace }}/n1/build.sh
-          echo "✅ build.sh 权限已设置为755，确保可修改.config文件"
+          chmod +x ${{ github.workspace }}/n1/build.sh
+          chmod +x ${{ github.workspace }}/shell/prepare-packages.sh
+          echo "✅ 脚本权限已设置"
 
       - name: Debug workspace contents
         run: ls -R
@@ -138,7 +138,6 @@ jobs:
       - name: Building N1 ImmortalWrt rootfs | LuCI ${{ inputs.luci_version }} | Kernel ${{ inputs.openwrt_kernel }}
         if: ${{ github.event.inputs.skip_imagebuilder != 'true' }}
         run: |
-          # 修改2: 添加 set -e 确保任何失败立即退出
           set -e
           echo "✅ 使用 ImageBuilder 构建 rootfs"
           profiles="generic"
@@ -154,12 +153,12 @@ jobs:
             docker run --rm -i \
               --user root \
               -v "${{ github.workspace }}/bin:/home/build/immortalwrt/bin" \
-              -v "${{ github.workspace }}/files/etc/uci-defaults:/home/build/immortalwrt/files/etc/uci-defaults" \
+              -v "${{ github.workspace }}/files:/home/build/immortalwrt/files" \
               -v "${{ github.workspace }}/arch/arch.conf:/home/build/immortalwrt/files/etc/opkg/arch.conf" \
               -v "${{ github.workspace }}/shell:/home/build/immortalwrt/shell" \
               -v "${{ github.workspace }}/n1/banner:/home/build/immortalwrt/files/mnt/banner" \
-              -v "${{ github.workspace }}/n1/imm.config:/home/build/immortalwrt/.config" \
               -v "${{ github.workspace }}/n1/build.sh:/home/build/immortalwrt/build.sh" \
+              -v "${{ github.workspace }}/n1/imm.config:/home/build/immortalwrt/.config" \
               -e PROFILE=$profile \
               -e INCLUDE_DOCKER=$include_docker \
               -e ROOTFS_PARTSIZE=$rootfs_partsize \
@@ -249,5 +248,4 @@ jobs:
         run: |
           export LUCI_VERSION="${{ inputs.luci_version }}"
           export PACKAGED_OUTPUTPATH="${{ env.PACKAGED_OUTPUTPATH }}"
-          chmod +x shell/check-firmware.sh
-          bash shell/check-firmware.sh || echo "诊断失败，不影响编译"
+          echo "✅ 固件诊断跳过（已在构建脚本中严格验证）"
