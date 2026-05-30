@@ -6,85 +6,105 @@ echo "第三方软件包: $CUSTOM_PACKAGES"
 echo "Building for profile: $PROFILE"
 echo "Building for ROOTFS_PARTSIZE: $ROOTFS_PARTSIZE"
 
-# 基础安装包
+# ==============================================
+# 基础包（N1 必需，不包含任何多余驱动）
+# ==============================================
 PACKAGES=""
 PACKAGES="$PACKAGES curl fdisk"
 PACKAGES="$PACKAGES luci-i18n-diskman-zh-cn luci-i18n-package-manager-zh-cn"
 PACKAGES="$PACKAGES luci-i18n-firewall-zh-cn luci-i18n-filemanager-zh-cn"
 PACKAGES="$PACKAGES luci-theme-argon luci-app-argon-config luci-i18n-argon-config-zh-cn"
 PACKAGES="$PACKAGES luci-i18n-ttyd-zh-cn openssh-sftp-server"
-PACKAGES="$PACKAGES luci-app-openclash luci-app-aria2 aria2 luci-i18n-aria2-zh-cn"
+PACKAGES="$PACKAGES luci-app-aria2 aria2 luci-i18n-aria2-zh-cn"
 
-# Docker 按需加载
+# ==============================================
+# OpenClash（按需）
+# ==============================================
+if [ "$ENABLE_OC" = "true" ]; then
+    PACKAGES="$PACKAGES luci-app-openclash"
+    # Perl 精简版（够用就行，不要全家桶）
+    PACKAGES="$PACKAGES perl-www perlbase-base perlbase-utf8"
+    
+    # 规则下载（使用有效地址）
+    mkdir -p files/etc/openclash
+    # 改用 MetaCubeX 的仓库（Loyalsoldier 已归档）
+    wget --tries=3 --timeout=10 https://github.com/MetaCubeX/meta-rules-dat/releases/latest/download/geoip.dat -O files/etc/openclash/GeoIP.dat || true
+    wget --tries=3 --timeout=10 https://github.com/MetaCubeX/meta-rules-dat/releases/latest/download/geosite.dat -O files/etc/openclash/GeoSite.dat || true
+fi
+
+# ==============================================
+# Docker（按需）
+# ==============================================
 if [ "$INCLUDE_DOCKER" = "yes" ]; then
-PACKAGES="$PACKAGES luci-i18n-dockerman-zh-cn"
+    PACKAGES="$PACKAGES docker docker-compose luci-i18n-dockerman-zh-cn"
 fi
 
-# Perl 基础库
-PACKAGES="$PACKAGES perlbase-base perlbase-file perlbase-time perlbase-utf8 perlbase-xsloader"
-
-# 晶晨宝盒
-CUSTOM_PACKAGES="$CUSTOM_PACKAGES luci-app-amlogic luci-i18n-amlogic-zh-cn"
-
-# Store 商店
+# ==============================================
+# iStore 商店（按需）
+# ==============================================
 if [ "$ENABLE_STORE" = "true" ]; then
-git clone --depth=1 https://github.com/wukongdaily/store.git /tmp/store-run-repo
-mkdir -p /home/build/immortalwrt/extra-packages
-cp -r /tmp/store-run-repo/run/arm64/* /home/build/immortalwrt/extra-packages/
-sh shell/prepare-packages.sh
-sed -i '1i\
-arch aarch64_generic 10\n\
-arch aarch64_cortex-a53 15' repositories.conf
-PACKAGES="$PACKAGES luci-app-store luci-lib-taskd luci-lib-xterm"
+    git clone --depth=1 https://github.com/wukongdaily/store.git /tmp/store-run-repo
+    mkdir -p /home/build/immortalwrt/extra-packages
+    cp -r /tmp/store-run-repo/run/arm64/* /home/build/immortalwrt/extra-packages/
+    sh shell/prepare-packages.sh
+    # 添加架构支持
+    echo "arch aarch64_generic 10" >> repositories.conf
+    echo "arch aarch64_cortex-a53 15" >> repositories.conf
+    PACKAGES="$PACKAGES luci-app-store luci-lib-taskd luci-lib-xterm"
 fi
 
+# ==============================================
+# 晶晨宝盒
+# ==============================================
+PACKAGES="$PACKAGES luci-app-amlogic luci-i18n-amlogic-zh-cn"
 PACKAGES="$PACKAGES $CUSTOM_PACKAGES"
 
-# OpenClash 规则下载
-if [ "$ENABLE_OC" = "true" ]; then
-mkdir -p files/etc/openclash
-wget --tries=10 --timeout=20 https://github.com/Loyalsoldier/v2-routetables/releases/latest/download/geoip.dat -O files/etc/openclash/GeoIP.dat
-wget --tries=10 --timeout=20 https://github.com/Loyalsoldier/v2-routetables/releases/latest/download/geosite.dat -O files/etc/openclash/GeoSite.dat
-fi
+# ==============================================
+# 🔥 关键修复：排除冗余驱动（正确做法）
+# ==============================================
+echo "==== 【清洗】移除 N1 不需要的驱动 ===="
+
+# 方法：直接排除，不依赖 sed 修改文件
+# 注意：排除项必须放在包含项**之后**，且不要同时包含冲突的包
+EXCLUDE_DRIVERS=" \
+    -kmod-amazon-ena -kmod-e1000 -kmod-e1000e -kmod-virtio-net \
+    -kmod-hyperv-netvsc -kmod-tg3 -kmod-bnx2 -kmod-forcedeth \
+    -kmod-vmxnet3 -kmod-octeontx2-net -kmod-fsl-fec -kmod-mvpp2 \
+    -kmod-usb-net -kmod-rtw88 -kmod-mt76 -kmod-brcmfmac \
+    -wpad-basic-mbedtls -iw -iwinfo -luci-app-wireless \
+    -ppp -ppp-mod-pppoe -kmod-ppp -odhcp6c -odhcpd-ipv6only \
+    -dnsmasq -firewall -iptables -kmod-ipt-offload \
+"
+
+# N1 真正需要的驱动（armsr 默认已包含大部分，只需明确添加存储相关）
+# 注意：不添加 kmod-usb-net 全家桶，按需添加具体芯片
+N1_ESSENTIAL=""
+# 如果需要外接 RTL8152 USB 网卡，取消下面注释
+# N1_ESSENTIAL="$N1_ESSENTIAL kmod-usb-net-rtl8152"
+# 如果需要外接 USB 硬盘
+# N1_ESSENTIAL="$N1_ESSENTIAL kmod-usb-storage kmod-fs-ext4 kmod-fs-vfat"
+
+# 最终组合：排除项在前，包含项在后（ImageBuilder 后覆盖前）
+PACKAGES="$EXCLUDE_DRIVERS $PACKAGES $N1_ESSENTIAL"
+
+# 打印最终排除列表
+echo "✅ 排除项：$(echo "$EXCLUDE_DRIVERS" | tr ' ' '\n' | grep '^-' | tr '\n' ' ')"
 
 # ==============================================
-# 🔥 修复版：深度清洗底包冗余驱动（无报错版）
+# 开始构建
 # ==============================================
-echo "==== 【前置操作】清洗官方底包冗余驱动 ===="
-cd /home/build/immortalwrt
+echo "开始构建固件..."
+echo "最终包列表长度：$(echo $PACKAGES | wc -w) 个"
 
-# 1. 洗白底包配置，解除官方硬编码驱动的强制依赖
-find target/linux/armsr/ -type f \( -name "*.yml" -o -name "Makefile" \) | while read -r file; do
-  sed -i -E 's/kmod-(usb-net|rtl|rtw|mt|ath|amazon|amd|e1000|virtio|hyperv)[^ ]*//g' "$file"
-  sed -i -E 's/kmod-(bnx|forcedeth|r8169|sis|via)[^ ]*//g' "$file"
-done
-
-# 2. 冗余驱动黑名单（强制剔除，N1完全无用）
-DROP_DRIVERS=" \
--kmod-amazon-ena -kmod-e1000 -kmod-e1000e -kmod-virtio-net \
--kmod-hyperv-netvsc -kmod-tg3 -kmod-bnx2 -kmod-forcedeth \
--kmod-vmxnet3 -kmod-octeontx2-net -kmod-fsl-fec -kmod-mvpp2 \
--kmod-usb-net -kmod-usb-net-rtl8152 -kmod-rtw88 -kmod-mt76 \
--kmod-brcmfmac -wpad-basic-mbedtls -iw -iwinfo -luci-app-wireless \
--ppp -ppp-mod-pppoe -kmod-ppp -odhcp6c -odhcpd-ipv6only"
-
-# 3. ❌ 移除报错的驱动：armsr底包无kmod-dwmac-gxbb，删除即可
-# 4. armsr通用驱动（N1兼容+必需，官方底包自带）
-N1_DRIVERS="kmod-usb-core kmod-usb-storage block-mount fstools"
-
-# 4. 合并所有包规则
-PACKAGES="$PACKAGES $DROP_DRIVERS $N1_DRIVERS"
-
-# 5. 排除生效校验（你要的一行输出）
-EXCLUDE_LIST=$(echo "$PACKAGES" | tr ' ' '\n' | grep '^-' | tr '\n' '|')
-[ -n "$EXCLUDE_LIST" ] && echo "✅排除生效|$EXCLUDE_LIST" || echo "❌排除未生效"
-
-# 开始构建固件
-make image PROFILE=$PROFILE PACKAGES="$PACKAGES" FILES="files" ROOTFS_PARTSIZE=$ROOTFS_PARTSIZE
+make image \
+    PROFILE="$PROFILE" \
+    PACKAGES="$PACKAGES" \
+    FILES="files" \
+    ROOTFS_PARTSIZE="$ROOTFS_PARTSIZE"
 
 if [ $? -ne 0 ]; then
-echo "❌ 固件构建失败"
-exit 1
+    echo "❌ 固件构建失败"
+    exit 1
 fi
 
-echo "✅ N1专属纯净固件构建完成"
+echo "✅ N1 固件构建完成"
